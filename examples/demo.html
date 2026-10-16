@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>云雀 · 团队知识库</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 400 15px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #1f2933;
+    background: #fff;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e8ecf1;
+  }
+  .site-header .inner {
+    display: flex; align-items: center; gap: 28px;
+    height: 64px;
+  }
+  .logo { font-weight: 700; font-size: 18px; letter-spacing: -.3px; }
+  .logo span { color: #2563eb; }
+  .site-nav { display: flex; gap: 22px; margin-left: auto; }
+  .site-nav a { color: #52606d; text-decoration: none; font-size: 14px; }
+  .site-nav a:hover { color: #2563eb; }
+  .btn-ghost {
+    padding: 7px 16px; border-radius: 8px; border: 1px solid #d6dde5;
+    color: #1f2933; font-size: 14px; text-decoration: none; background: #fff;
+  }
+
+  .hero {
+    padding: 96px 0 88px;
+    background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 46px; line-height: 1.2; margin: 0 0 18px;
+    letter-spacing: -1px; font-weight: 700;
+  }
+  .hero h1 em { font-style: normal; color: #2563eb; }
+  .hero p.lead {
+    font-size: 17px; color: #52606d; margin: 0 auto 32px; max-width: 560px;
+  }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; }
+  .btn-primary {
+    display: inline-block; padding: 11px 26px; border-radius: 9px;
+    background: #2563eb; color: #fff; text-decoration: none;
+    font-size: 15px; font-weight: 500;
+  }
+  .btn-secondary {
+    display: inline-block; padding: 11px 26px; border-radius: 9px;
+    border: 1px solid #d6dde5; color: #1f2933; text-decoration: none; font-size: 15px;
+  }
+
+  .section { padding: 76px 0; }
+  .section-head { text-align: center; margin-bottom: 44px; }
+  .section-head h2 { font-size: 30px; margin: 0 0 10px; letter-spacing: -.5px; }
+  .section-head p { margin: 0; color: #7b8794; font-size: 15px; }
+
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .feature-card {
+    border: 1px solid #e8ecf1; border-radius: 14px; padding: 26px 22px;
+    background: #fff;
+  }
+  .feature-card .icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: #e8f0fe; color: #2563eb;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 16px; margin: 0 0 8px; }
+  .feature-card p { margin: 0; font-size: 14px; color: #7b8794; line-height: 1.65; }
+
+  .stats { background: #f6f9ff; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center; }
+  .stat-row .num { font-size: 34px; font-weight: 700; color: #2563eb; letter-spacing: -1px; }
+  .stat-row .lbl { font-size: 13px; color: #7b8794; margin-top: 4px; }
+
+  .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .price-card {
+    border: 1px solid #e8ecf1; border-radius: 14px; padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .price-card.featured { border-color: #2563eb; box-shadow: 0 6px 24px rgba(37,99,235,.10); }
+  .price-card .plan { font-size: 14px; color: #7b8794; }
+  .price-card .amount { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+  .price-card .amount small { font-size: 14px; font-weight: 400; color: #7b8794; }
+  .price-card ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .price-card li { font-size: 14px; color: #52606d; }
+  .price-card li::before { content: "—"; color: #2563eb; margin-right: 8px; }
+
+  .faq-list { display: flex; flex-direction: column; gap: 10px; max-width: 760px; margin: 0 auto; }
+  .faq-item { border: 1px solid #e8ecf1; border-radius: 12px; padding: 18px 20px; }
+  .faq-item h3 { margin: 0 0 6px; font-size: 15px; }
+  .faq-item p { margin: 0; font-size: 14px; color: #7b8794; }
+
+  .site-footer { background: #1f2933; color: #9aa5b1; padding: 48px 0 32px; }
+  .footer-cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 28px; }
+  .site-footer h4 { color: #fff; font-size: 14px; margin: 0 0 14px; }
+  .site-footer a { display: block; color: #9aa5b1; text-decoration: none; font-size: 13px; padding: 3px 0; }
+  .footer-bottom {
+    margin-top: 34px; padding-top: 20px; border-top: 1px solid #323f4b;
+    font-size: 12px; color: #7b8794;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap inner">
+    <div class="logo">云<span>雀</span>知识库</div>
+    <nav class="site-nav">
+      <a href="#features">功能</a>
+      <a href="#pricing">定价</a>
+      <a href="#faq">常见问题</a>
+      <a href="#docs">文档</a>
+    </nav>
+    <a class="btn-ghost" href="#login">登录</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>把团队的<em>散装知识</em><br>收进一个地方</h1>
+      <p class="lead">文档、讨论、决策记录自动归档，谁都能搜到、谁都能改。不用再问「那个文件放哪了」。</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#start">免费开始</a>
+        <a class="btn-secondary" href="#demo">看演示</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>为什么团队都在用</h2>
+        <p>三件事做到位，知识就不会丢</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="icon">搜</div>
+          <h3>全文秒搜</h3>
+          <p>支持中文分词与模糊匹配，输入两个关键字就能定位到三个月前的那条决策记录。</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">写</div>
+          <h3>边写边结构化</h3>
+          <p>不用先想好目录。写完之后一键生成标签与索引，文档自己找到该去的位置。</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">联</div>
+          <h3>关联而非堆叠</h3>
+          <p>文档之间自动建立引用关系，翻到任意一页都能顺着线索看到上下文。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section stats">
+    <div class="wrap">
+      <div class="stat-row">
+        <div><div class="num">12,480</div><div class="lbl">活跃团队</div></div>
+        <div><div class="num">3.2 亿</div><div class="lbl">已归档文档</div></div>
+        <div><div class="num">78ms</div><div class="lbl">平均搜索耗时</div></div>
+        <div><div class="num">4.9 / 5</div><div class="lbl">用户评分</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>定价</h2>
+        <p>按人数计费，随时可退</p>
+      </div>
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="plan">个人版</div>
+          <div class="amount">¥0 <small>/ 月</small></div>
+          <ul>
+            <li>单用户</li>
+            <li>1 GB 存储</li>
+            <li>基础搜索</li>
+          </ul>
+        </div>
+        <div class="price-card featured">
+          <div class="plan">团队版</div>
+          <div class="amount">¥29 <small>/ 人 / 月</small></div>
+          <ul>
+            <li>无限成员</li>
+            <li>100 GB 存储</li>
+            <li>全文秒搜 + 关联图谱</li>
+            <li>操作日志与权限</li>
+          </ul>
+        </div>
+        <div class="price-card">
+          <div class="plan">企业版</div>
+          <div class="amount">按需 <small>报价</small></div>
+          <ul>
+            <li>私有化部署</li>
+            <li>SSO 单点登录</li>
+            <li>专属客户成功</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>常见问题</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3>能把已有的 Wiki 迁过来吗？</h3>
+          <p>支持从 Confluence、Notion 与 Markdown 目录批量导入，保留原有的层级与附件。</p>
+        </div>
+        <div class="faq-item">
+          <h3>数据存在哪里？</h3>
+          <p>默认存储在国内多可用区对象存储，企业版可完全私有化部署到你自己的服务器。</p>
+        </div>
+        <div class="faq-item">
+          <h3>试用期有多长？</h3>
+          <p>团队版提供 14 天全功能试用，无需绑定支付方式，到期自动降级到个人版。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-cols">
+      <div>
+        <h4>云雀知识库</h4>
+        <p style="margin:0;font-size:13px;line-height:1.7;">让团队的每一次讨论都留下痕迹，而不是消失在群聊里。</p>
+      </div>
+      <div>
+        <h4>产品</h4>
+        <a href="#">功能总览</a>
+        <a href="#">定价</a>
+        <a href="#">更新日志</a>
+      </div>
+      <div>
+        <h4>资源</h4>
+        <a href="#">帮助中心</a>
+        <a href="#">开发者文档</a>
+        <a href="#">API</a>
+      </div>
+      <div>
+        <h4>关于</h4>
+        <a href="#">团队介绍</a>
+        <a href="#">联系我们</a>
+        <a href="#">隐私政策</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 云雀科技 · 仅为演示用途</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>云雀后台 · 数据看板</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --border: #e6eaf0;
+    --text: #1a2733;
+    --muted: #7b8794;
+    --soft: #52606d;
+    --primary: #2563eb;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+  }
+  body {
+    margin: 0;
+    font: 400 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  /* ---------- 布局骨架 ---------- */
+  .layout { display: flex; min-height: 100vh; align-items: stretch; }
+
+  /* ---------- 侧边导航 ---------- */
+  .sidebar {
+    position: sticky; top: 0;
+    flex: none; width: 224px; height: 100vh;
+    background: #101828; color: #98a2b3;
+    display: flex; flex-direction: column;
+    padding: 20px 12px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 9px;
+    padding: 0 10px 22px;
+    color: #fff; font-weight: 600; font-size: 15px; letter-spacing: -.2px;
+  }
+  .brand .mark {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+  .nav-group { display: flex; flex-direction: column; gap: 2px; }
+  .nav-group + .nav-group { margin-top: 18px; }
+  .nav-label {
+    font-size: 11px; letter-spacing: .6px; text-transform: uppercase;
+    color: #475467; padding: 0 10px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 13.5px; color: #98a2b3; text-decoration: none;
+  }
+  .nav-item:hover { background: #1d2939; color: #fff; }
+  .nav-item.active { background: var(--primary); color: #fff; }
+  .nav-item .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: .6;
+  }
+  .side-foot {
+    margin-top: auto; padding: 14px 10px 0;
+    border-top: 1px solid #1d2939;
+    font-size: 12px; color: #475467;
+  }
+
+  /* ---------- 主列 ---------- */
+  .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    height: 62px; padding: 0 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .crumb { font-size: 13px; color: var(--muted); }
+  .crumb b { color: var(--text); font-weight: 500; font-size: 15px; }
+  .search {
+    margin-left: auto; width: 260px;
+    padding: 7px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: #f8fafc;
+    font-size: 13px; color: var(--muted);
+  }
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--soft); font-size: 14px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: #fff; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .content { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ---------- KPI ---------- */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 18px 16px;
+  }
+  .kpi-card .k-label { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-card .k-value { font-size: 26px; font-weight: 600; letter-spacing: -.6px; }
+  .kpi-card .k-value small { font-size: 14px; font-weight: 400; color: var(--muted); }
+  .kpi-card .k-delta { font-size: 12px; margin-top: 6px; color: var(--green); }
+  .kpi-card .k-delta.down { color: var(--red); }
+  .kpi-card .k-delta span { color: var(--muted); }
+
+  /* ---------- 图表 + 活动流 ---------- */
+  .charts { display: flex; gap: 16px; align-items: stretch; }
+
+  .chart-card {
+    flex: 1; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+  }
+  .panel-head {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 18px;
+  }
+  .panel-head h3 { margin: 0; font-size: 14.5px; font-weight: 600; }
+  .panel-head .sub { font-size: 12px; color: var(--muted); }
+  .panel-head .legend { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+  .bars {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 12px; align-items: end; height: 168px;
+    padding-bottom: 26px; position: relative;
+  }
+  .bars::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 22px;
+    border-top: 1px dashed var(--border);
+  }
+  .bar-col { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .bar {
+    background: #dbeafe; border-radius: 5px 5px 0 0;
+    transition: background .15s;
+  }
+  .bar-col:hover .bar { background: #93c5fd; }
+  .bar-col.peak .bar { background: var(--primary); }
+  .bar-x { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
+
+  .feed {
+    flex: none; width: 300px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+    display: flex; flex-direction: column;
+  }
+  .feed-list { display: flex; flex-direction: column; gap: 14px; }
+  .feed-item { display: flex; gap: 10px; }
+  .feed-item .who {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: #eef2f7; color: var(--soft);
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feed-item .what { font-size: 13px; line-height: 1.5; }
+  .feed-item .when { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- 表格 ---------- */
+  .table-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 12px; font-weight: 500; color: var(--muted);
+    padding: 0 12px 10px; border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px; font-size: 13.5px;
+    border-bottom: 1px solid #f1f4f8;
+  }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .who-cell { display: flex; align-items: center; gap: 8px; }
+  .who-cell .mini {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #eef2f7; color: var(--soft);
+    font-size: 10.5px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pill {
+    display: inline-block; font-size: 11.5px;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .pill.ok { background: #ecfdf3; color: #027a48; }
+  .pill.wait { background: #fff7e6; color: #b45309; }
+  .pill.send { background: #eff6ff; color: #1d4ed8; }
+  .pill.fail { background: #fef3f2; color: #b42318; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">云</span>云雀后台</div>
+
+    <nav class="nav-group">
+      <div class="nav-label">经营</div>
+      <a class="nav-item active" href="#"><span class="dot"></span>数据看板</a>
+      <a class="nav-item" href="#"><span class="dot"></span>订单管理</a>
+      <a class="nav-item" href="#"><span class="dot"></span>客户列表</a>
+      <a class="nav-item" href="#"><span class="dot"></span>库存台账</a>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-label">分析</div>
+      <a class="nav-item" href="#"><span class="dot"></span>销售报表</a>
+      <a class="nav-item" href="#"><span class="dot"></span>渠道归因</a>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-label">系统</div>
+      <a class="nav-item" href="#"><span class="dot"></span>团队成员</a>
+      <a class="nav-item" href="#"><span class="dot"></span>权限设置</a>
+    </nav>
+
+    <div class="side-foot">v2.4.1 · 内网演示版</div>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="crumb">经营 / <b>数据看板</b></div>
+      <input class="search" type="text" placeholder="搜索订单号、客户或商品" readonly>
+      <div class="icon-btn">铃</div>
+      <div class="avatar">李</div>
+    </header>
+
+    <main class="content">
+
+      <section class="kpi-row">
+        <div class="kpi-card">
+          <div class="k-label">今日订单</div>
+          <div class="k-value">1,284 <small>单</small></div>
+          <div class="k-delta">↑ 12.4% <span>较昨日</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-label">今日营收</div>
+          <div class="k-value">¥ 86,420</div>
+          <div class="k-delta">↑ 8.1% <span>较昨日</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-label">新增客户</div>
+          <div class="k-value">327 <small>人</small></div>
+          <div class="k-delta down">↓ 3.2% <span>较昨日</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-label">下单转化率</div>
+          <div class="k-value">4.86 <small>%</small></div>
+          <div class="k-delta">↑ 0.42 <span>个百分点</span></div>
+        </div>
+      </section>
+
+      <section class="charts">
+        <div class="chart-card">
+          <div class="panel-head">
+            <h3>近 7 日订单趋势</h3>
+            <span class="sub">单位：单</span>
+            <span class="legend">峰值出现在 10-13</span>
+          </div>
+          <div class="bars">
+            <div class="bar-col"><div class="bar" style="height:48%"></div><div class="bar-x">10-08</div></div>
+            <div class="bar-col"><div class="bar" style="height:61%"></div><div class="bar-x">10-09</div></div>
+            <div class="bar-col"><div class="bar" style="height:39%"></div><div class="bar-x">10-10</div></div>
+            <div class="bar-col"><div class="bar" style="height:72%"></div><div class="bar-x">10-11</div></div>
+            <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-x">10-12</div></div>
+            <div class="bar-col peak"><div class="bar" style="height:94%"></div><div class="bar-x">10-13</div></div>
+            <div class="bar-col"><div class="bar" style="height:66%"></div><div class="bar-x">10-14</div></div>
+          </div>
+        </div>
+
+        <div class="feed">
+          <div class="panel-head">
+            <h3>实时动态</h3>
+            <span class="sub">刚刚</span>
+          </div>
+          <div class="feed-list">
+            <div class="feed-item">
+              <div class="who">王</div>
+              <div>
+                <div class="what">提交了订单 <b>#A23841</b>，金额 ¥1,280</div>
+                <div class="when">2 分钟前</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="who">陈</div>
+              <div>
+                <div class="what">把「华东仓」库存预警阈值调到 <b>200</b></div>
+                <div class="when">11 分钟前</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="who">刘</div>
+              <div>
+                <div class="what">导出了 9 月销售报表</div>
+                <div class="when">26 分钟前</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="who">系</div>
+              <div>
+                <div class="what">渠道归因任务跑完，覆盖 <b>18,204</b> 条点击</div>
+                <div class="when">1 小时前</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-panel">
+        <div class="panel-head">
+          <h3>最近订单</h3>
+          <span class="sub">共 1,284 条，显示前 5 条</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:130px">订单号</th>
+              <th>客户</th>
+              <th style="width:110px">金额</th>
+              <th style="width:120px">状态</th>
+              <th style="width:150px">下单时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="num">#A23841</td>
+              <td><div class="who-cell"><span class="mini">王</span>王思远</div></td>
+              <td class="num">¥ 1,280.00</td>
+              <td><span class="pill ok">已完成</span></td>
+              <td class="num">10-15 20:14</td>
+            </tr>
+            <tr>
+              <td class="num">#A23840</td>
+              <td><div class="who-cell"><span class="mini">赵</span>赵晓岚</div></td>
+              <td class="num">¥ 468.50</td>
+              <td><span class="pill send">已发货</span></td>
+              <td class="num">10-15 19:52</td>
+            </tr>
+            <tr>
+              <td class="num">#A23839</td>
+              <td><div class="who-cell"><span class="mini">孙</span>孙立</div></td>
+              <td class="num">¥ 2,940.00</td>
+              <td><span class="pill wait">待付款</span></td>
+              <td class="num">10-15 19:31</td>
+            </tr>
+            <tr>
+              <td class="num">#A23838</td>
+              <td><div class="who-cell"><span class="mini">周</span>周若彤</div></td>
+              <td class="num">¥ 156.00</td>
+              <td><span class="pill fail">已取消</span></td>
+              <td class="num">10-15 18:47</td>
+            </tr>
+            <tr>
+              <td class="num">#A23837</td>
+              <td><div class="who-cell"><span class="mini">吴</span>吴启明</div></td>
+              <td class="num">¥ 5,120.00</td>
+              <td><span class="pill ok">已完成</span></td>
+              <td class="num">10-15 18:20</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

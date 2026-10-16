@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>板块简报 · SectionBrief</title>
+<link rel="stylesheet" href="/tool.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">板块简报</div>
+    <div class="target">
+      <input id="targetInput" type="text" spellcheck="false" placeholder="目标 HTML 绝对路径，例如 D:\project\index.html">
+      <button id="openBtn" class="btn primary">打开</button>
+    </div>
+    <div class="status" id="status">空闲</div>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div class="stage-head">
+        <span class="title">整页预览</span>
+        <span class="hint">悬停高亮 · 点击选中 · Shift 下钻 · Alt 上溯 · Esc 取消</span>
+        <span class="sel-chip" id="selChip" hidden></span>
+      </div>
+      <div class="frame-wrap">
+        <iframe id="pageFrame" title="整页预览"></iframe>
+        <div class="empty" id="stageEmpty">
+          <p>填入目标 HTML 的绝对路径，点「打开」开始</p>
+          <p class="sub">脚本会被注入到预览里，你的源文件不会被改动</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="card">
+        <div class="card-head">
+          <span>当前选中</span>
+          <span class="badge" id="selBadge">未选中</span>
+        </div>
+        <div class="sel-info" id="selInfo">
+          <p class="sub">在左侧预览里点一个板块</p>
+        </div>
+        <div class="actions">
+          <button id="exportBtn" class="btn primary" disabled>抽离成独立页面</button>
+          <button id="clearSelBtn" class="btn" disabled>取消选中</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span>生成修改指令</span>
+          <span class="badge" id="promptBadge">待选中</span>
+        </div>
+        <textarea id="intent" class="ta intent" rows="3" placeholder="想怎么改这一块？例如：价格卡间距太大，压紧一点，主推套餐再突出些"></textarea>
+        <textarea id="promptOut" class="ta prompt" rows="10" readonly placeholder="选中一个板块后，这里会生成可直接粘贴给开发智能体的上下文指令"></textarea>
+        <div class="actions">
+          <button id="copyPromptBtn" class="btn primary" disabled>复制给开发智能体</button>
+        </div>
+      </div>
+
+      <div class="card grow">
+        <div class="card-head">
+          <span>板块列表</span>
+          <span class="badge" id="countBadge">0</span>
+        </div>
+        <div class="list" id="sectionList">
+          <p class="sub">打开目标文件后自动识别</p>
+        </div>
+      </div>
+
+      <div class="card grow" id="sandboxCard" hidden>
+        <div class="card-head">
+          <span>沙盒预览</span>
+          <span class="badge" id="sandboxName">-</span>
+          <button id="copyBtn" class="btn tiny" disabled>复制路径</button>
+        </div>
+        <div class="frame-wrap small">
+          <iframe id="sandboxFrame" title="沙盒预览"></iframe>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/tool.js"></script>
+</body>
+</html>
